@@ -1,8 +1,8 @@
 package web
 
 import (
-	"araha/araha/models"
-	"araha/araha/services"
+	"araha/models"
+	"araha/services"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -50,5 +50,23 @@ func UpdateSubscriptionController() gin.HandlerFunc {
 		}
 		c.JSON(http.StatusOK, gin.H{"data": "Updated Successfully",
 			"Object": result})
+	}
+}
+
+func DeleteSubscriptionController() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var subscription models.Subscription
+		var deleteSubscription services.NewSubscriptionServices
+		if err := c.ShouldBindJSON(&subscription); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"message": "An error occurred"})
+		}
+
+		response, err := deleteSubscription.DeleteSubscription(subscription)
+
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "Error Could not delete subscription"})
+		}
+		c.JSON(response, gin.H{"message": "Subscription deleted successfully"})
+
 	}
 }

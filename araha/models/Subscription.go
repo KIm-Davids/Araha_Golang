@@ -1,7 +1,7 @@
 package models
 
 import (
-	"araha/araha/constants"
+	"araha/constants"
 )
 
 type Subscription struct {

@@ -1,6 +1,6 @@
 package mapper
 
-import "araha/araha/models"
+import "araha/models"
 
 func UpdateSubscription(subscription models.Subscription) float64 {
 	subscriptionFound := FindSubscriptionTypes(subscription)

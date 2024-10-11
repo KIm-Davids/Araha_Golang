@@ -1,12 +1,14 @@
 package services
 
 import (
-	"araha/araha/exceptions"
-	"araha/araha/mapper"
-	"araha/araha/models"
-	"araha/araha/repository"
+	"araha/exceptions"
+	"araha/mapper"
+	"araha/models"
+	"araha/repository"
+	"fmt"
 	"log"
 	"net/http"
+	"time"
 )
 
 type CreateSubscriptionServices interface {
@@ -44,17 +46,23 @@ func (nss *NewSubscriptionServices) CreateSubscription(subscription models.Subsc
 
 type UpdateSubscriptionServices struct{}
 
-func (nss *NewSubscriptionServices) UpdateSubscription(subscription models.Subscription) (int, error) {
-	//var cannotUpdateSubscriptionException exceptions.MyException
+func (nss *NewSubscriptionServices) UpdateSubscription(updateSubscription models.Subscription) (int, error) {
+	var subscription models.Subscription
 
-	if subscription.Amount != 0 || subscription.SubscriptionType != " " {
-		foundSubscription := mapper.FindSubscriptionTypes(subscription)
-		newSubscription := foundSubscription.Amount + subscription.Amount
-		db, err := repository.SubscriptionRepo()
-		db.Save(newSubscription)
+	db, err := repository.SubscriptionRepo()
+	result := db.Where("id = ?", updateSubscription.ID).First(&subscription)
+	fmt.Print(result)
+
+	if updateSubscription.SubscriptionType != " " && subscription.SubscriptionType == updateSubscription.SubscriptionType {
+		foundSubscription := mapper.FindSubscriptionTypes(updateSubscription)
+		updateSubscription.Amount = foundSubscription.Amount + subscription.Amount
+		subscription.Date = time.Now().String()
+
+		db, err = repository.SubscriptionRepo()
+		db.Save(updateSubscription)
 
 		if err != nil {
-			log.Fatalf("Couldn't update the user subscription %v", err)
+			log.Fatalf("Couldn't update the user's subscription %v", err)
 			return http.StatusAccepted, nil
 		}
 	}
@@ -62,16 +70,18 @@ func (nss *NewSubscriptionServices) UpdateSubscription(subscription models.Subsc
 
 }
 
-func (nss *NewSubscriptionServices) DeleteSubscription(subscription models.Subscription) {
-	var UnableToDeleteSubscriptionException exceptions.MyException
+type DeleteSubscriptionServices struct{}
+
+func (nss *NewSubscriptionServices) DeleteSubscription(subscription models.Subscription) (int, error) {
 
 	db, err := repository.SubscriptionRepo()
-
 	db.Delete(subscription)
 
 	if err != nil {
-		log.Fatalf("Couldn't delete subscription %v", UnableToDeleteSubscriptionException)
+		return http.StatusNotModified, err
 	}
+	return http.StatusOK, nil
+
 }
 
 func (nss *NewSubscriptionServices) GetAllSubscription() interface{} {

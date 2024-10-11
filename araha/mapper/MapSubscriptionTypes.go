@@ -1,10 +1,8 @@
 package mapper
 
 import (
-	"araha/araha/constants"
-	"araha/araha/exceptions"
-	"araha/araha/models"
-	"net/http"
+	"araha/constants"
+	"araha/models"
 	"time"
 )
 
@@ -12,41 +10,45 @@ func FindSubscriptionTypes(subscription models.Subscription) models.Subscription
 	var noSubscription models.Subscription
 
 	if subscription.SubscriptionType == constants.NETFLIX {
-		return netflixMapper(subscription)
+		var userBalance models.User
+		var subscriptionCost float64
+
+		subscriptionCost = 2000
+		userBalance.Balance = 10000
+		discountAmount := int((10.0 / 100.0) * subscriptionCost)
+		balance := int(subscriptionCost) - discountAmount
+		subscription.Amount = float64(int(userBalance.Balance) - balance)
+		subscription.Discount = 10 / 100 * 1000
+		subscription.Date = time.Now().String()
+		return subscription
 	}
 
 	if subscription.SubscriptionType == constants.JUMIA {
-		return jumiaMapper(subscription)
+		var userBalance models.User
+		var subscriptionCost float64
+
+		subscriptionCost = 4000
+		userBalance.Balance = 10000
+		discountAmount := int((10.0 / 100.0) * subscriptionCost)
+		balance := int(subscriptionCost) - discountAmount
+		subscription.Amount = float64(int(userBalance.Balance) - balance)
+		subscription.Discount = 10 / 100 * 1000
+		subscription.Date = time.Now().String()
+		return subscription
 	}
 
 	if subscription.SubscriptionType == constants.GOTV {
-		return gotvMapper(subscription)
+		var userBalance models.User
+		var subscriptionCost float64
+
+		subscriptionCost = 6000
+		userBalance.Balance = 10000
+		discountAmount := int((10.0 / 100.0) * subscriptionCost)
+		balance := int(subscriptionCost) - discountAmount
+		subscription.Amount = float64(int(userBalance.Balance) - balance)
+		subscription.Discount = 10 / 100 * 1000
+		subscription.Date = time.Now().String()
+		return subscription
 	}
 	return noSubscription
-}
-
-func jumiaMapper(subscription models.Subscription) models.Subscription {
-	subscription.Amount = 1000
-	subscription.Discount = 10 / 100 * 1000
-	subscription.Date = time.Now().String()
-	return subscription
-}
-
-func netflixMapper(subscription models.Subscription) models.Subscription {
-	subscription.Amount = 2000
-	subscription.Discount = 10 / 100 * 2000
-	subscription.Date = time.Now().String()
-	return subscription
-}
-
-func gotvMapper(subscription models.Subscription) models.Subscription {
-	subscription.Amount = 8000
-	subscription.Discount = 10 / 100 * 8000
-	subscription.Date = time.Now().String()
-	return subscription
-}
-
-func subscriptionNotAvailableErrorMessage() exceptions.MyException {
-	err := exceptions.MyException{Data: http.StatusExpectationFailed, Object: "This service is currently not available\nPlease try again later"}
-	return err
 }

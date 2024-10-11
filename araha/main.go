@@ -1,7 +1,7 @@
 package main
 
 import (
-	"araha/araha/web"
+	"araha/web"
 	"github.com/gin-gonic/gin"
 )
 
@@ -16,6 +16,12 @@ func main() {
 
 	r.POST("/create-sub", web.CreateSubscriptionController())
 	r.PATCH("/update-sub", web.UpdateSubscriptionController())
+	r.DELETE("/delete-sub", web.DeleteSubscriptionController())
 	r.Run()
 
 }
+
+// go mod init your_project_name (Use this to initialize your go project)
+// go get -u github.com/gin-gonic/gin (to install gin)
+// go get -u gorm.io/gorm (to install gorm)
+//
