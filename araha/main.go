@@ -17,6 +17,7 @@ func main() {
 	r.POST("/create-sub", web.CreateSubscriptionController())
 	r.PATCH("/update-sub", web.UpdateSubscriptionController())
 	r.DELETE("/delete-sub", web.DeleteSubscriptionController())
+	r.GET("/get-all-sub")
 	r.Run()
 
 }

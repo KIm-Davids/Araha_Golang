@@ -55,19 +55,20 @@ func (nss *NewSubscriptionServices) UpdateSubscription(updateSubscription models
 	result := db.Where("id = ?", updateSubscription.ID).First(&subscription)
 	fmt.Print(result)
 
+	if err != nil {
+		log.Fatalf("An error occured in fetching from database")
+	}
+
 	if updateSubscription.SubscriptionType != " " && subscription.SubscriptionType == updateSubscription.SubscriptionType {
 		foundSubscription := mapper.FindSubscriptionTypes(updateSubscription)
 		updateSubscription.Amount = foundSubscription.Amount + subscription.Amount
-		subscription.Date = time.Now().String()
+		updateSubscription.Date = time.Now().String()
 
 		db, err = repository.SubscriptionRepo()
 		db.Save(updateSubscription)
-
-		if err != nil {
-			log.Fatalf("Couldn't update the user's subscription %v", err)
-			return http.StatusAccepted, nil
-		}
+		return http.StatusAccepted, nil
 	}
+
 	return http.StatusNotModified, nil
 
 }

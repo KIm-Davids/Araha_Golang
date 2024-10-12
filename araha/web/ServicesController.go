@@ -52,6 +52,9 @@ func UpdateSubscriptionController() gin.HandlerFunc {
 		if err != nil {
 			c.JSON(http.StatusNotModified, gin.H{"Error": err})
 		}
+		if result == http.StatusNotModified {
+			c.JSON(http.StatusNotModified, gin.H{"message": "Could not update the subscription\nPlease try again later"})
+		}
 		c.JSON(http.StatusOK, gin.H{"data": "Updated Successfully",
 			"Object": result})
 	}
