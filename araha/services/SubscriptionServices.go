@@ -11,10 +11,6 @@ import (
 	"time"
 )
 
-type CreateSubscriptionServices interface {
-	CreateSubscription(subscription models.Subscription) (int, error)
-}
-
 type NewSubscriptionServices struct{}
 
 func (nss *NewSubscriptionServices) CreateSubscription(subscription models.Subscription) (int, error) {
@@ -45,8 +41,6 @@ func (nss *NewSubscriptionServices) CreateSubscription(subscription models.Subsc
 	}
 	return http.StatusBadRequest, &invalidDetailsException
 }
-
-type UpdateSubscriptionServices struct{}
 
 func (nss *NewSubscriptionServices) UpdateSubscription(updateSubscription models.Subscription) (int, error) {
 	var subscription models.Subscription
