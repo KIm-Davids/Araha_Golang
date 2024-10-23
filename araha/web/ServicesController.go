@@ -70,10 +70,25 @@ func DeleteSubscriptionController() gin.HandlerFunc {
 
 		response, err := deleteSubscription.DeleteSubscription(subscription)
 
+		if response == http.StatusOK {
+			c.JSON(response, gin.H{"message": "Subscription deleted successfully"})
+		}
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"message": "Error Could not delete subscription"})
 		}
-		c.JSON(response, gin.H{"message": "Subscription deleted successfully"})
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "Internal Error Could not delete subscription"})
+
+	}
+}
+
+func GetAllSubscriptionController() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var subscription models.Subscription
+		var getAllSub services.NewSubscriptionServices
+
+		if err := c.ShouldBindJSON(&subscription); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"message": "An error occurred"})
+		}
 
 	}
 }

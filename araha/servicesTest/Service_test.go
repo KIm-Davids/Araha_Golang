@@ -17,13 +17,72 @@ func TestCreateSubscription(t *testing.T) {
 	subscription.SubscriptionType = "Netflix"
 	subscription.Date = time.Now().String()
 	subscription.Description = "Pay for Netflix"
+	subscription.ID = "1"
 
 	result, err := subServices.CreateSubscription(subscription)
-	expected, err := http.StatusBadRequest, err
+	expected, err := http.StatusCreated, err
 
 	if result != expected {
 		t.Errorf("Wanted %v, got %v", expected, result)
 	}
 
 	assert.Equal(t, result, expected)
+}
+
+func TestToUpdateSubscription(t *testing.T) {
+	var subscription models.Subscription
+	var subServices services.NewSubscriptionServices
+
+	subscription.Amount = 8000
+	subscription.Date = time.Now().String()
+	subscription.SubscriptionType = "Netflix"
+	subscription.Description = "Changed sub to gotv"
+	subscription.ID = "1"
+
+	result, err := subServices.UpdateSubscription(subscription)
+	expected, err := http.StatusAccepted, err
+
+	if result != expected {
+		t.Errorf("Wanted %v Got %v", expected, result)
+	}
+
+	assert.Equal(t, result, expected)
+}
+
+func TestDeleteSubscription(t *testing.T) {
+	var subscription models.Subscription
+	var subService services.NewSubscriptionServices
+
+	subscription.SubscriptionType = "Netflix"
+	result, err := subService.DeleteSubscription(subscription)
+	expected, err := http.StatusOK, err
+
+	if result != expected {
+		t.Errorf("Wanted %v, Got %v", result, expected)
+	}
+	assert.Equal(t, result, expected)
+}
+
+func TestThatItIsOnlyTheSubscriptionTypeThatIsUsedToDelete(t *testing.T) {
+	var subscription models.Subscription
+	var subService services.NewSubscriptionServices
+
+	subscription.Amount = 1000
+	result, err := subService.DeleteSubscription(subscription)
+	expected, err := http.StatusOK, err
+
+	if result != expected {
+		t.Errorf("Wanted %v, Got %v", result, expected)
+	}
+
+	assert.Equal(t, result, expected)
+
+}
+
+func TestThatWeCanRetrieveValuesFromTheDB(t *testing.T) {
+	var subscription models.Subscription
+	var subService services.NewSubscriptionServices
+
+	result := subService.GetAllSubscription()
+	expected := http.S
 }

@@ -71,27 +71,36 @@ type DeleteSubscriptionServices struct{}
 
 func (nss *NewSubscriptionServices) DeleteSubscription(subscription models.Subscription) (int, error) {
 
-	db, err := repository.SubscriptionRepo()
-	db.Delete(subscription)
+	var sub models.Subscription
 
+	db, err := repository.SubscriptionRepo()
+	foundSub := db.Where("subscription_type = ?", subscription.SubscriptionType).First(&sub)
+	if foundSub.Error != nil {
+		log.Fatalf("Couldn't retrieve values from db Error: %v", foundSub.Error)
+	}
+	result := db.Delete(&sub)
+	if result.RowsAffected >= 1 {
+		return http.StatusOK, nil
+	}
 	if err != nil {
 		return http.StatusNotModified, err
 	}
-	return http.StatusOK, nil
-
+	return http.StatusInternalServerError, err
 }
 
-func (nss *NewSubscriptionServices) GetAllSubscription() interface{} {
-	var unableToGetAllValuesException exceptions.MyException
+func (nss *NewSubscriptionServices) GetAllSubscription() (interface{}, error) {
 	var allSubscription models.Subscription
 
 	db, err := repository.SubscriptionRepo()
 	foundSub := db.Find(&allSubscription)
-
-	if err != nil {
-		log.Fatalf("Could'nt retrieve all the values from the database %v", unableToGetAllValuesException)
+	if foundSub.Error != nil {
+		return http.StatusInternalServerError, err
 	}
 
-	return foundSub
+	//if err != nil {
+	//	log.Fatalf("Could'nt retrieve all the values from the database %v", unableToGetAllValuesException)
+	//}
+
+	return allSubscription, nil
 
 }
