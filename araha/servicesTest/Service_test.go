@@ -4,6 +4,7 @@ import (
 	"araha/models"
 	"araha/services"
 	"gotest.tools/v3/assert"
+	"log"
 	"net/http"
 	"testing"
 	"time"
@@ -80,9 +81,18 @@ func TestThatItIsOnlyTheSubscriptionTypeThatIsUsedToDelete(t *testing.T) {
 }
 
 func TestThatWeCanRetrieveValuesFromTheDB(t *testing.T) {
-	var subscription models.Subscription
 	var subService services.NewSubscriptionServices
 
-	result := subService.GetAllSubscription()
-	expected := http.S
+	result, err := subService.GetAllSubscription()
+	expected := http.StatusFound
+
+	if result != expected {
+		t.Errorf("Wanted %v, Got %v", expected, result)
+	}
+	assert.Equal(t, result, expected)
+
+	if err != nil {
+		log.Fatalln("An error occurred in test")
+	}
+
 }

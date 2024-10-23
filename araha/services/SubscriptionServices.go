@@ -101,6 +101,10 @@ func (nss *NewSubscriptionServices) GetAllSubscription() (interface{}, error) {
 	//	log.Fatalf("Could'nt retrieve all the values from the database %v", unableToGetAllValuesException)
 	//}
 
+	if foundSub.Error == nil {
+		return http.StatusFound, nil
+	}
+
 	return allSubscription, nil
 
 }

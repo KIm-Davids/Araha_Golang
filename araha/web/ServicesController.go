@@ -84,10 +84,18 @@ func DeleteSubscriptionController() gin.HandlerFunc {
 func GetAllSubscriptionController() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var subscription models.Subscription
-		var getAllSub services.NewSubscriptionServices
+		var getAllSubServices services.NewSubscriptionServices
 
 		if err := c.ShouldBindJSON(&subscription); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"message": "An error occurred"})
+		}
+
+		result, err := getAllSubServices.GetAllSubscription()
+
+		c.JSON(http.StatusOK, gin.H{"Fetched Data from the database": result})
+
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		}
 
 	}
