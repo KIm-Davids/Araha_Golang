@@ -92,7 +92,9 @@ func GetAllSubscriptionController() gin.HandlerFunc {
 
 		result, err := getAllSubServices.GetAllSubscription()
 
-		c.JSON(http.StatusOK, gin.H{"Fetched Data from the database": result})
+		if result == http.StatusFound {
+			c.JSON(http.StatusFound, gin.H{"Fetched Data from the database": result})
+		}
 
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

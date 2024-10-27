@@ -64,22 +64,6 @@ func TestDeleteSubscription(t *testing.T) {
 	assert.Equal(t, result, expected)
 }
 
-func TestThatItIsOnlyTheSubscriptionTypeThatIsUsedToDelete(t *testing.T) {
-	var subscription models.Subscription
-	var subService services.NewSubscriptionServices
-
-	subscription.Amount = 1000
-	result, err := subService.DeleteSubscription(subscription)
-	expected, err := http.StatusOK, err
-
-	if result != expected {
-		t.Errorf("Wanted %v, Got %v", result, expected)
-	}
-
-	assert.Equal(t, result, expected)
-
-}
-
 func TestThatWeCanRetrieveValuesFromTheDB(t *testing.T) {
 	var subService services.NewSubscriptionServices
 

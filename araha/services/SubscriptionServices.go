@@ -11,9 +11,16 @@ import (
 	"time"
 )
 
+type SubscriptionServices interface {
+	CreateSubscription(subscription models.Subscription) (int, error)
+	UpdateSubscription(updateSubscription models.Subscription) (int, error)
+	DeleteSubscription(subscription models.Subscription) (int, error)
+	GetAllSubscription() interface{}
+}
+
 type NewSubscriptionServices struct{}
 
-func (nss *NewSubscriptionServices) CreateSubscription(subscription models.Subscription) (int, error) {
+func (nss *SubscriptionServices) CreateSubscription(subscription models.Subscription) (int, error) {
 	var invalidDetailsException exceptions.MyException
 	var foundSubType models.Subscription
 
@@ -62,9 +69,7 @@ func (nss *NewSubscriptionServices) UpdateSubscription(updateSubscription models
 		db.Save(updateSubscription)
 		return http.StatusAccepted, nil
 	}
-
 	return http.StatusNotModified, nil
-
 }
 
 type DeleteSubscriptionServices struct{}
@@ -101,9 +106,9 @@ func (nss *NewSubscriptionServices) GetAllSubscription() (interface{}, error) {
 	//	log.Fatalf("Could'nt retrieve all the values from the database %v", unableToGetAllValuesException)
 	//}
 
-	if foundSub.Error == nil {
-		return http.StatusFound, nil
-	}
+	//if foundSub.Error == nil {
+	//	return http.StatusFound, nil
+	//}
 
 	return allSubscription, nil
 
