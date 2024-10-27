@@ -1,21 +1,26 @@
 package services
 
 import (
-	"araha/araha/exceptions"
-	"araha/araha/mapper"
-	"araha/araha/models"
-	"araha/araha/repository"
+	"araha/exceptions"
+	"araha/mapper"
+	"araha/models"
+	"araha/repository"
+	"fmt"
 	"log"
 	"net/http"
+	"time"
 )
 
-type CreateSubscriptionServices interface {
+type SubscriptionServices interface {
 	CreateSubscription(subscription models.Subscription) (int, error)
+	UpdateSubscription(updateSubscription models.Subscription) (int, error)
+	DeleteSubscription(subscription models.Subscription) (int, error)
+	GetAllSubscription() interface{}
 }
 
 type NewSubscriptionServices struct{}
 
-func (nss *NewSubscriptionServices) CreateSubscription(subscription models.Subscription) (int, error) {
+func (nss *SubscriptionServices) CreateSubscription(subscription models.Subscription) (int, error) {
 	var invalidDetailsException exceptions.MyException
 	var foundSubType models.Subscription
 
@@ -25,13 +30,15 @@ func (nss *NewSubscriptionServices) CreateSubscription(subscription models.Subsc
 	if foundSubType.SubscriptionType == subscription.SubscriptionType {
 		return http.StatusConflict, nil
 	}
+	//var userBalance models.User
+	// userBalance.Balance > 0
 
 	if subscription.SubscriptionType != " " {
 		subscription = mapper.FindSubscriptionTypes(subscription)
 		db, err := repository.SubscriptionRepo()
 		db.Save(subscription)
 		if err != nil {
-			log.Fatalf("Could not save to the database: %v", err)
+			return http.StatusInternalServerError, err
 		}
 		return http.StatusCreated, nil
 	}
@@ -42,49 +49,67 @@ func (nss *NewSubscriptionServices) CreateSubscription(subscription models.Subsc
 	return http.StatusBadRequest, &invalidDetailsException
 }
 
-type UpdateSubscriptionServices struct{}
-
-func (nss *NewSubscriptionServices) UpdateSubscription(subscription models.Subscription) (int, error) {
-	//var cannotUpdateSubscriptionException exceptions.MyException
-
-	if subscription.Amount != 0 || subscription.SubscriptionType != " " {
-		foundSubscription := mapper.FindSubscriptionTypes(subscription)
-		newSubscription := foundSubscription.Amount + subscription.Amount
-		db, err := repository.SubscriptionRepo()
-		db.Save(newSubscription)
-
-		if err != nil {
-			log.Fatalf("Couldn't update the user subscription %v", err)
-			return http.StatusAccepted, nil
-		}
-	}
-	return http.StatusNotModified, nil
-
-}
-
-func (nss *NewSubscriptionServices) DeleteSubscription(subscription models.Subscription) {
-	var UnableToDeleteSubscriptionException exceptions.MyException
+func (nss *NewSubscriptionServices) UpdateSubscription(updateSubscription models.Subscription) (int, error) {
+	var subscription models.Subscription
 
 	db, err := repository.SubscriptionRepo()
-
-	db.Delete(subscription)
+	result := db.Where("id = ?", updateSubscription.ID).First(&subscription)
+	fmt.Print(result)
 
 	if err != nil {
-		log.Fatalf("Couldn't delete subscription %v", UnableToDeleteSubscriptionException)
+		log.Fatalf("An error occured in fetching from database")
 	}
+
+	if updateSubscription.SubscriptionType != " " && subscription.SubscriptionType == updateSubscription.SubscriptionType {
+		foundSubscription := mapper.FindSubscriptionTypes(updateSubscription)
+		updateSubscription.Amount = foundSubscription.Amount + subscription.Amount
+		updateSubscription.Date = time.Now().String()
+
+		db, err = repository.SubscriptionRepo()
+		db.Save(updateSubscription)
+		return http.StatusAccepted, nil
+	}
+	return http.StatusNotModified, nil
 }
 
-func (nss *NewSubscriptionServices) GetAllSubscription() interface{} {
-	var unableToGetAllValuesException exceptions.MyException
+type DeleteSubscriptionServices struct{}
+
+func (nss *NewSubscriptionServices) DeleteSubscription(subscription models.Subscription) (int, error) {
+
+	var sub models.Subscription
+
+	db, err := repository.SubscriptionRepo()
+	foundSub := db.Where("subscription_type = ?", subscription.SubscriptionType).First(&sub)
+	if foundSub.Error != nil {
+		log.Fatalf("Couldn't retrieve values from db Error: %v", foundSub.Error)
+	}
+	result := db.Delete(&sub)
+	if result.RowsAffected >= 1 {
+		return http.StatusOK, nil
+	}
+	if err != nil {
+		return http.StatusNotModified, err
+	}
+	return http.StatusInternalServerError, err
+}
+
+func (nss *NewSubscriptionServices) GetAllSubscription() (interface{}, error) {
 	var allSubscription models.Subscription
 
 	db, err := repository.SubscriptionRepo()
 	foundSub := db.Find(&allSubscription)
-
-	if err != nil {
-		log.Fatalf("Could'nt retrieve all the values from the database %v", unableToGetAllValuesException)
+	if foundSub.Error != nil {
+		return http.StatusInternalServerError, err
 	}
 
-	return foundSub
+	//if err != nil {
+	//	log.Fatalf("Could'nt retrieve all the values from the database %v", unableToGetAllValuesException)
+	//}
+
+	//if foundSub.Error == nil {
+	//	return http.StatusFound, nil
+	//}
+
+	return allSubscription, nil
 
 }

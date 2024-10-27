@@ -1,15 +1,14 @@
 package models
 
 import (
-	"araha/araha/constants"
+	"araha/constants"
 )
 
 type Subscription struct {
 	ID               string                     `json:"id"`
 	SubscriptionType constants.SubscriptionType `json:"SubscriptionType"`
 	Description      string                     `json:"description"`
-	Amount           float64
-	Discount         float64
+	Amount           int
 	Date             string
 	UserId           int
 }
